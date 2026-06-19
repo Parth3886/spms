@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Drive | PlaceTrack</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-light: #dbeafe;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-w: 240px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+        .sidebar { width: var(--sidebar-w); background: var(--primary); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-brand { padding: 28px 24px 22px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+        .brand-dot { color: var(--accent); }
+        .brand-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+        .nav-section { padding: 20px 16px 8px; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13.5px; font-weight: 500; border-radius: 6px; margin-bottom: 2px; transition: 0.18s; }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-item.active { background: var(--accent); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .user-row { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+        .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+        .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .logout-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; display: block; margin-top: 12px; }
+
+        .main { margin-left: var(--sidebar-w); padding: 32px 36px; min-height: 100vh; max-width: calc(var(--sidebar-w) + 800px); }
+
+        .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb span { margin: 0 6px; }
+
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--muted); }
+
+        /* Status control */
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+        }
+        .status-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700; }
+        .status-select {
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--success);
+            background: none;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            padding: 0;
+        }
+        .status-select:focus { outline: none; }
+
+        .form-card { background: var(--card); padding: 32px 36px; }
+
+        /* Change indicator */
+        .form-section { margin-bottom: 30px; }
+        .form-section-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+        input[type="text"], input[type="number"], input[type="date"], input[type="url"], select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text);
+            background: #fafafa;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            -webkit-appearance: none;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+        textarea { resize: vertical; min-height: 90px; }
+
+        /* Current attachment card */
+        .attachment-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            margin-bottom: 12px;
+        }
+        .attachment-info { display: flex; align-items: center; gap: 10px; }
+        .attachment-icon { font-size: 20px; }
+        .attachment-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .attachment-meta { font-size: 11px; color: var(--muted); }
+        .remove-attach { font-size: 12px; color: var(--danger); text-decoration: none; font-weight: 600; cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; }
+
+        .file-zone { border: 2px dashed var(--border); padding: 22px; text-align: center; background: #fafafa; cursor: pointer; transition: 0.2s; position: relative; }
+        .file-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+        .file-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+        .file-text { font-size: 13px; color: var(--muted); }
+        .file-text strong { color: var(--accent); }
+
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+        .checkbox-item { display: flex; align-items: center; gap: 7px; }
+        .checkbox-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+        .checkbox-item label { font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--text); margin-bottom: 0; font-weight: 500; cursor: pointer; }
+
+        /* Danger zone */
+        .danger-zone { margin-top: 28px; border: 1px solid #fee2e2; padding: 22px 24px; }
+        .danger-title { font-size: 13px; font-weight: 700; color: var(--danger); margin-bottom: 6px; }
+        .danger-text { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+        .btn-danger { padding: 10px 22px; background: none; border: 1.5px solid var(--danger); color: var(--danger); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; text-decoration: none; transition: 0.2s; }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+
+        .form-actions { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+        .btn-submit { padding: 14px 36px; background: var(--primary); color: #fff; border: none; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-family: 'Inter', sans-serif; transition: 0.25s; }
+        .btn-submit:hover { background: var(--accent); }
+        .back-link { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .back-link:hover { color: var(--text); }
+
+        @media(max-width:700px){
+            .main { margin-left: 0; padding: 20px; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .form-card { padding: 22px 18px; }
+            .page-header { flex-direction: column; gap: 14px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-name">Place<span class="brand-dot">Track</span></div>
+        <div class="brand-sub">Management System</div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <a href="/" class="nav-item"><span class="nav-icon">⊞</span> Dashboard</a>
+        <a href="/students" class="nav-item"><span class="nav-icon">🎓</span> Students</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Academics</div>
+        <a href="/assessments" class="nav-item"><span class="nav-icon">📝</span> Assessments</a>
+        <a href="/attendance" class="nav-item"><span class="nav-icon">📅</span> Attendance</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Placement</div>
+        <a href="/drives" class="nav-item active"><span class="nav-icon">🏢</span> Drives</a>
+        <a href="/interviews" class="nav-item"><span class="nav-icon">💬</span> Interviews</a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-row">
+            <div class="avatar">{{ current_user.name[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.name }}</div>
+                <div class="user-role">{{ current_user.role | title }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-link">← Sign out</a>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="breadcrumb">
+        <a href="/">Dashboard</a><span>›</span>
+        <a href="/drives">Drives</a><span>›</span>
+        Edit Drive
+    </div>
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Edit: {{ drive.company_name }}</div>
+            <div class="page-sub">Last updated · {{ drive.updated_at }}</div>
+        </div>
+        <div class="status-pill">
+            <span class="status-label">Status</span>
+            <select class="status-select" name="status_quick" onchange="this.style.color = this.value==='open'?'#10b981':this.value==='closed'?'#ef4444':'#f59e0b'">
+                <option value="open" {% if drive.status == 'open' %}selected{% endif %}>Open</option>
+                <option value="upcoming" {% if drive.status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                <option value="closed" {% if drive.status == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <form action="/update/{{ drive.id }}" method="post" enctype="multipart/form-data">
+
+            <!-- Company Info -->
+            <div class="form-section">
+                <div class="form-section-title">Company Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="company_name" value="{{ drive.company_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Industry Sector</label>
+                        <select name="sector">
+                            <option {% if drive.sector == 'IT & Software' %}selected{% endif %}>IT & Software</option>
+                            <option {% if drive.sector == 'Banking & Finance' %}selected{% endif %}>Banking & Finance</option>
+                            <option {% if drive.sector == 'Core Engineering' %}selected{% endif %}>Core Engineering</option>
+                            <option {% if drive.sector == 'Consulting' %}selected{% endif %}>Consulting</option>
+                            <option {% if drive.sector == 'E-Commerce' %}selected{% endif %}>E-Commerce</option>
+                            <option {% if drive.sector == 'Startup' %}selected{% endif %}>Startup</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Job Role / Profile</label>
+                        <input type="text" name="role" value="{{ drive.role }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CTC / Package (LPA)</label>
+                        <input type="text" name="ctc" value="{{ drive.ctc }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job Description</label>
+                    <textarea name="description">{{ drive.description }}</textarea>
+                </div>
+            </div>
+
+            <!-- Drive Details -->
+            <div class="form-section">
+                <div class="form-section-title">Drive Details</div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Drive Date</label>
+                        <input type="date" name="drive_date" value="{{ drive.drive_date }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Registration Deadline</label>
+                        <input type="date" name="reg_deadline" value="{{ drive.reg_deadline }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Vacancies</label>
+                        <input type="number" name="vacancies" value="{{ drive.vacancies }}" min="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Min CGPA Required</label>
+                        <input type="number" name="min_cgpa" value="{{ drive.min_cgpa }}" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Backlogs Allowed</label>
+                        <input type="number" name="max_backlogs" value="{{ drive.max_backlogs }}" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eligible Branches -->
+            <div class="form-section">
+                <div class="form-section-title">Eligible Branches</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="cs" value="CS" {% if 'CS' in drive.branches %}checked{% endif %}>
+                        <label for="cs">Computer Science</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="it" value="IT" {% if 'IT' in drive.branches %}checked{% endif %}>
+                        <label for="it">Information Technology</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="ec" value="EC" {% if 'EC' in drive.branches %}checked{% endif %}>
+                        <label for="ec">Electronics</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="mech" value="MECH" {% if 'MECH' in drive.branches %}checked{% endif %}>
+                        <label for="mech">Mechanical</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachment -->
+            <div class="form-section">
+                <div class="form-section-title">Attachment</div>
+                {% if drive.attachment %}
+                <div class="attachment-card">
+                    <div class="attachment-info">
+                        <span class="attachment-icon">📄</span>
+                        <div>
+                            <div class="attachment-name">{{ drive.attachment }}</div>
+                            <div class="attachment-meta">Uploaded · {{ drive.attachment_date }}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-attach" onclick="this.closest('.attachment-card').style.display='none'">✕ Remove</button>
+                </div>
+                {% endif %}
+                <div class="file-zone">
+                    <div class="file-text"><strong>Click to replace</strong> with new file</div>
+                    <div class="file-text" style="margin-top:4px;font-size:12px">PDF, DOCX, PPTX — max 10MB</div>
+                    <input type="file" name="attachment" accept=".pdf,.doc,.docx,.ppt,.pptx" onchange="document.querySelector('.file-text strong').innerText = this.files[0]?.name || 'Click to replace'">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Save Changes</button>
+                <a href="/" class="back-link">← Cancel</a>
+            </div>
+        </form>
+
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+            <div class="danger-title">Danger Zone</div>
+            <div class="danger-text">Permanently deleting this drive will remove all associated student registrations and interview records.</div>
+            <a href="/delete/{{ drive.id }}" class="btn-danger" onclick="return confirm('This will permanently delete the drive and all related data. Continue?')">Delete Drive</a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

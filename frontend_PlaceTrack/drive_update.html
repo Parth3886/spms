@@ -1,0 +1,90 @@
+{% extends "_layout.html" %}
+{% block title %}Edit Drive{% endblock %}
+{% block nav_drives %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Edit {{ drive.company_name }}</div>
+        <div class="page-sub">{{ drive.role }} | {{ drive.drive_date }}</div>
+    </div>
+    <a href="/drives" class="btn btn-outline">Back</a>
+</div>
+
+<section class="panel">
+    <form action="/update/{{ drive.id }}" method="post" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Company Name</label>
+                <input type="text" name="company_name" value="{{ drive.company_name }}" required>
+            </div>
+            <div class="form-field">
+                <label>Sector</label>
+                <input type="text" name="sector" value="{{ drive.sector or '' }}">
+            </div>
+            <div class="form-field">
+                <label>Role</label>
+                <input type="text" name="role" value="{{ drive.role }}" required>
+            </div>
+            <div class="form-field">
+                <label>CTC</label>
+                <input type="text" name="ctc" value="{{ drive.ctc or '' }}">
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Description</label>
+            <textarea name="description">{{ drive.description or '' }}</textarea>
+        </div>
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Drive Date</label>
+                <input type="date" name="drive_date" value="{{ drive.drive_date }}" required>
+            </div>
+            <div class="form-field">
+                <label>Registration Deadline</label>
+                <input type="date" name="reg_deadline" value="{{ drive.reg_deadline or '' }}">
+            </div>
+            <div class="form-field">
+                <label>Vacancies</label>
+                <input type="number" name="vacancies" value="{{ drive.vacancies or '' }}" min="1">
+            </div>
+        </div>
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Status</label>
+                <select name="status">
+                    {% for status in ['upcoming', 'open', 'closed'] %}
+                    <option value="{{ status }}" {% if drive.status == status %}selected{% endif %}>{{ status | title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Minimum CGPA</label>
+                <input type="number" name="min_cgpa" value="{{ drive.min_cgpa or 0 }}" step="0.1" min="0" max="10">
+            </div>
+            <div class="form-field">
+                <label>Maximum Backlogs</label>
+                <input type="number" name="max_backlogs" value="{{ drive.max_backlogs or 0 }}" min="0">
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Eligible Branches</label>
+            <div class="checkbox-row">
+                {% for branch in ['CS', 'IT', 'EC', 'MECH', 'CIVIL', 'ALL'] %}
+                <label class="checkbox-item"><input type="checkbox" name="branches" value="{{ branch }}" {% if branch in drive.branches %}checked{% endif %}> {{ branch }}</label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Attachment</label>
+            <input type="file" name="attachment" accept=".pdf,.doc,.docx,.ppt,.pptx">
+            {% if drive.attachment %}<div class="muted">Current: {{ drive.attachment }}</div>{% endif %}
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            {% if current_user.role == 'admin' %}
+            <a href="/delete/{{ drive.id }}" class="btn btn-danger" onclick="return confirm('Delete this drive?')">Delete Drive</a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+{% endblock %}

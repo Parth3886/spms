@@ -1,0 +1,108 @@
+{% extends "_layout.html" %}
+{% block title %}Interviews{% endblock %}
+{% block nav_interviews %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Interviews</div>
+        <div class="page-sub">{{ interviews | length }} interview round{% if interviews | length != 1 %}s{% endif %}</div>
+    </div>
+    <a href="/interviews/feedback" class="btn btn-outline">Feedback</a>
+</div>
+
+{% if current_user.role in ['admin', 'trainer'] %}
+<section class="panel">
+    <div class="panel-title">Schedule Interview</div>
+    <form action="/interviews/create" method="post">
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Student</label>
+                <select name="student_id" required>
+                    {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Drive</label>
+                <select name="drive_id" required>
+                    {% for drive in drives %}
+                    <option value="{{ drive.id }}">{{ drive.company_name }} - {{ drive.role }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Date</label>
+                <input type="date" name="interview_date">
+            </div>
+        </div>
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Round</label>
+                <input type="number" name="round_number" value="1" min="1">
+            </div>
+            <div class="form-field">
+                <label>Type</label>
+                <select name="round_type">
+                    <option value="aptitude">Aptitude</option>
+                    <option value="technical" selected>Technical</option>
+                    <option value="hr">HR</option>
+                    <option value="gd">GD</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Interviewer</label>
+                <input type="text" name="interviewer_name">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" {% if not students or not drives %}disabled{% endif %}>Schedule</button>
+    </form>
+</section>
+{% endif %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Drive</th>
+                <th>Round</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if interviews %}
+                {% for interview in interviews %}
+                <tr>
+                    <td><strong>{{ interview.student.name }}</strong><br><span class="muted">{{ interview.student.email }}</span></td>
+                    <td>{{ interview.drive.company_name }}<br><span class="muted">{{ interview.drive.role }}</span></td>
+                    <td>{{ interview.round_number }} - {{ interview.round_type or '-' }}</td>
+                    <td>{{ interview.interview_date or '-' }}</td>
+                    <td><span class="badge {{ interview.result }}">{{ interview.result | title }}</span></td>
+                    <td>
+                        {% if current_user.role in ['admin', 'trainer'] and interview.result == 'pending' %}
+                        <form action="/interviews/{{ interview.id }}/feedback" method="post" class="compact-form">
+                            <select name="result">
+                                <option value="cleared">Cleared</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="on-hold">On Hold</option>
+                            </select>
+                            <input type="number" name="rating" min="1" max="5" placeholder="Rating 1-5">
+                            <textarea name="feedback" placeholder="Feedback"></textarea>
+                            <button type="submit" class="btn btn-outline">Submit</button>
+                        </form>
+                        {% else %}
+                        <span class="muted">{{ interview.feedback or '-' }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="6" class="empty">No interview rounds found.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | PlaceTrack</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-w: 240px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        .sidebar { width: var(--sidebar-w); background: var(--primary); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-brand { padding: 28px 24px 22px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+        .brand-dot { color: var(--accent); }
+        .brand-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+        .nav-section { padding: 20px 16px 8px; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13.5px; font-weight: 500; border-radius: 6px; margin-bottom: 2px; transition: 0.18s; }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-item.active { background: var(--accent); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .user-row { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+        .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+        .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .logout-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; display: block; margin-top: 12px; }
+        .logout-link:hover { color: var(--danger); }
+        .main { margin-left: var(--sidebar-w); padding: 32px 36px; min-height: 100vh; max-width: calc(var(--sidebar-w) + 860px); }
+        .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb span { margin: 0 6px; }
+        .page-header { margin-bottom: 28px; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--muted); }
+        .form-card { background: var(--card); padding: 32px 36px; }
+        .form-section { margin-bottom: 30px; }
+        .form-section-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); font-size: 14px; color: var(--text); background: #fafafa; transition: 0.2s; font-family: 'Inter', sans-serif; -webkit-appearance: none; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); background: #fff; }
+        input[readonly] { color: var(--muted); background: #f8fafc; }
+        input[type="file"] { padding: 10px 12px; }
+        .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+        .form-actions { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+        .btn-submit { padding: 14px 36px; background: var(--primary); color: #fff; border: none; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-family: 'Inter', sans-serif; transition: 0.25s; }
+        .btn-submit:hover { background: var(--accent); }
+        .back-link { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .back-link:hover { color: var(--text); }
+        @media(max-width: 800px) {
+            .sidebar { position: static; width: 100%; min-height: auto; }
+            .sidebar-footer { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .form-card { padding: 22px 18px; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-name">Place<span class="brand-dot">Track</span></div>
+        <div class="brand-sub">Management System</div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <a href="/" class="nav-item"><span class="nav-icon">[]</span> Dashboard</a>
+        <a href="/students" class="nav-item active"><span class="nav-icon">ST</span> Students</a>
+        <a href="/trainers" class="nav-item"><span class="nav-icon">TR</span> Trainers</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Academics</div>
+        <a href="/assessments" class="nav-item"><span class="nav-icon">AS</span> Assessments</a>
+        <a href="/attendance" class="nav-item"><span class="nav-icon">AT</span> Attendance</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Placement</div>
+        <a href="/drives" class="nav-item"><span class="nav-icon">DR</span> Drives</a>
+        <a href="/interviews" class="nav-item"><span class="nav-icon">IN</span> Interviews</a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-row">
+            <div class="avatar">{{ current_user.name[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.name }}</div>
+                <div class="user-role">{{ current_user.role | title }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-link">&larr; Sign out</a>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="breadcrumb">
+        <a href="/">Dashboard</a><span>/</span>
+        <a href="/students">Students</a><span>/</span>
+        Edit Student
+    </div>
+    <div class="page-header">
+        <div class="page-title">Edit {{ student.name }}</div>
+        <div class="page-sub">{{ student.email }}</div>
+    </div>
+
+    <div class="form-card">
+        <form action="/students/update/{{ student.id }}" method="post" enctype="multipart/form-data">
+            <div class="form-section">
+                <div class="form-section-title">Student Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" value="{{ student.name }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" value="{{ student.email }}" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Academic Details</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>College</label>
+                        <input type="text" name="college" value="{{ student.college }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Branch</label>
+                        {% set branch_options = ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil', 'Other'] %}
+                        <select name="branch" required>
+                            <option value="" {% if not student.branch %}selected{% endif %}>Select branch</option>
+                            {% if student.branch and student.branch not in branch_options %}
+                            <option value="{{ student.branch }}" selected>{{ student.branch }}</option>
+                            {% endif %}
+                            {% for branch in branch_options %}
+                            <option value="{{ branch }}" {% if student.branch == branch %}selected{% endif %}>{{ branch }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Batch Year</label>
+                        <input type="number" name="batch_year" value="{{ student.batch_year }}" min="2000" max="2100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CGPA</label>
+                        <input type="number" name="cgpa" value="{{ student.cgpa if student.cgpa is not none else '' }}" step="0.01" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Backlogs</label>
+                        <input type="number" name="backlogs" value="{{ student.backlogs or 0 }}" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Placement Details</div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="placement_status" id="placement-status">
+                            {% for status in ['eligible', 'interviewing', 'placed', 'not_eligible'] %}
+                            <option value="{{ status }}" {% if student.placement_status == status %}selected{% endif %}>{{ status.replace('_', ' ') | title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Placed Company</label>
+                        <input type="text" name="placed_company" value="{{ student.placed_company or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Placed CTC</label>
+                        <input type="text" name="placed_ctc" value="{{ student.placed_ctc or '' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Resume</label>
+                    <input type="file" name="resume">
+                    {% if student.resume_path %}
+                    <div class="hint">Current resume: <a href="/static/uploads/{{ student.resume_path }}" target="_blank">{{ student.resume_path }}</a></div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Update Student</button>
+                <a href="/students" class="back-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

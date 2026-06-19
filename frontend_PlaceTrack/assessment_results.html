@@ -1,0 +1,48 @@
+{% extends "_layout.html" %}
+{% block title %}Assessment Results{% endblock %}
+{% block nav_assessments %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">{{ assessment.title }}</div>
+        <div class="page-sub">{{ assessment.subject }} | {{ assessment.date or '-' }} | Total marks: {{ assessment.total_marks }}</div>
+    </div>
+    <div class="toolbar">
+        <a href="/assessments" class="btn btn-outline">Back</a>
+    </div>
+</div>
+
+<form action="/assessments/{{ assessment.id }}/results" method="post">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Branch</th>
+                    <th>Batch</th>
+                    <th>Score</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                    <tr>
+                        <td><strong>{{ student.name }}</strong><br><span class="muted">{{ student.email }}</span></td>
+                        <td>{{ student.branch or '-' }}</td>
+                        <td>{{ student.batch_year }}</td>
+                        <td><input type="number" name="score_{{ student.id }}" value="{{ score_map.get(student.id, '') }}" min="0" max="{{ assessment.total_marks }}" step="0.01"></td>
+                        <td><input type="text" name="remarks_{{ student.id }}" value="{{ remarks_map.get(student.id, '') }}"></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="empty">No student profiles found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% if current_user.role in ['admin', 'trainer'] and students %}
+    <button type="submit" class="btn btn-primary">Save Results</button>
+    {% endif %}
+</form>
+{% endblock %}

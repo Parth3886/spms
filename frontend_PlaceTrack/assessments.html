@@ -1,0 +1,77 @@
+{% extends "_layout.html" %}
+{% block title %}Assessments{% endblock %}
+{% block nav_assessments %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Assessments</div>
+        <div class="page-sub">{{ assessments | length }} assessment{% if assessments | length != 1 %}s{% endif %}</div>
+    </div>
+</div>
+
+{% if current_user.role in ['admin', 'trainer'] %}
+<section class="panel">
+    <div class="panel-title">Create Assessment</div>
+    <form action="/assessments/create" method="post">
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Title</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-field">
+                <label>Subject</label>
+                <input type="text" name="subject" required>
+            </div>
+            <div class="form-field">
+                <label>Date</label>
+                <input type="date" name="assessment_date" required>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Total Marks</label>
+                <input type="number" name="total_marks" value="100" min="1">
+            </div>
+            <div class="form-field">
+                <label>Description</label>
+                <input type="text" name="description">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Assessment</button>
+    </form>
+</section>
+{% endif %}
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Assessment</th>
+                <th>Subject</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Average</th>
+                <th>Submissions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if assessments %}
+                {% for assessment in assessments %}
+                <tr>
+                    <td><strong>{{ assessment.title }}</strong><br><span class="muted">{{ assessment.description or '' }}</span></td>
+                    <td>{{ assessment.subject }}</td>
+                    <td>{{ assessment.date or '-' }}</td>
+                    <td>{{ assessment.total_marks }}</td>
+                    <td>{{ assessment.avg_score }}%</td>
+                    <td>{{ assessment.results | length }}</td>
+                    <td><a href="/assessments/{{ assessment.id }}/results" class="small-link">Results</a></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="7" class="empty">No assessments found.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

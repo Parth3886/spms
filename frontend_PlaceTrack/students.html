@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students | PlaceTrack</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-w: 240px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        .sidebar { width: var(--sidebar-w); background: var(--primary); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-brand { padding: 28px 24px 22px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+        .brand-dot { color: var(--accent); }
+        .brand-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+        .nav-section { padding: 20px 16px 8px; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13.5px; font-weight: 500; border-radius: 6px; margin-bottom: 2px; transition: 0.18s; }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-item.active { background: var(--accent); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .user-row { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+        .user-info { min-width: 0; }
+        .user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .logout-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; display: block; margin-top: 12px; }
+        .logout-link:hover { color: var(--danger); }
+
+        .main { margin-left: var(--sidebar-w); padding: 32px 36px; min-height: 100vh; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+        .topbar-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; }
+        .topbar-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+        .btn { padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; border: none; cursor: pointer; text-decoration: none; font-family: 'Inter', sans-serif; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--accent); }
+        .table-wrap { background: var(--card); overflow-x: auto; }
+        table { width: 100%; min-width: 900px; border-collapse: collapse; }
+        thead th { padding: 13px 18px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; background: #f8fafc; border-bottom: 1px solid var(--border); }
+        tbody td { padding: 14px 18px; font-size: 13.5px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f8fafc; }
+        .muted { color: var(--muted); font-size: 12px; }
+        .badge { display: inline-block; padding: 3px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .badge.placed { background: #dcfce7; color: #166534; }
+        .badge.interviewing { background: #dbeafe; color: #1d4ed8; }
+        .badge.eligible { background: #fef9c3; color: #854d0e; }
+        .badge.not_eligible { background: #fee2e2; color: #991b1b; }
+        .action-btns { display: flex; gap: 8px; align-items: center; }
+        .action-btn { padding: 5px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; text-decoration: none; border: 1px solid var(--border); color: var(--muted); transition: 0.18s; background: none; font-family: 'Inter', sans-serif; white-space: nowrap; }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+        .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+        .empty a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        @media(max-width: 900px) {
+            .sidebar { position: static; width: 100%; min-height: auto; }
+            .sidebar-footer { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .topbar { align-items: flex-start; flex-direction: column; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-name">Place<span class="brand-dot">Track</span></div>
+        <div class="brand-sub">Management System</div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <a href="/" class="nav-item"><span class="nav-icon">[]</span> Dashboard</a>
+        <a href="/students" class="nav-item active"><span class="nav-icon">ST</span> Students</a>
+        <a href="/trainers" class="nav-item"><span class="nav-icon">TR</span> Trainers</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Academics</div>
+        <a href="/assessments" class="nav-item"><span class="nav-icon">AS</span> Assessments</a>
+        <a href="/attendance" class="nav-item"><span class="nav-icon">AT</span> Attendance</a>
+        <a href="/performance" class="nav-item"><span class="nav-icon">PF</span> Performance</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Placement</div>
+        <a href="/drives" class="nav-item"><span class="nav-icon">DR</span> Drives</a>
+        <a href="/interviews" class="nav-item"><span class="nav-icon">IN</span> Interviews</a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-row">
+            <div class="avatar">{{ current_user.name[0] | upper }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ current_user.name }}</div>
+                <div class="user-role">{{ current_user.role | title }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-link">&larr; Sign out</a>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="topbar">
+        <div>
+            <div class="topbar-title">Students</div>
+            <div class="topbar-sub">{{ students | length }} student profile{% if students | length != 1 %}s{% endif %}</div>
+        </div>
+        {% if current_user.role in ['admin', 'trainer'] %}
+        <a href="/students/create" class="btn btn-primary">+ Add Student</a>
+        {% endif %}
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>College</th>
+                    <th>Branch</th>
+                    <th>Batch</th>
+                    <th>CGPA</th>
+                    <th>Backlogs</th>
+                    <th>Attendance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                    {% set status = student.placement_status or 'eligible' %}
+                    <tr>
+                        <td><strong>{{ student.name }}</strong><br><span class="muted">{{ student.email }}</span></td>
+                        <td>{{ student.college }}</td>
+                        <td>{{ student.branch }}</td>
+                        <td>{{ student.batch_year }}</td>
+                        <td>{{ student.cgpa if student.cgpa is not none else '-' }}</td>
+                        <td>{{ student.backlogs or 0 }}</td>
+                        <td>{{ student.attendance }}%</td>
+                        <td><span class="badge {{ status }}">{{ status.replace('_', ' ') | title }}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                {% if current_user.role in ['admin', 'trainer'] %}
+                                <a href="/students/update/{{ student.id }}" class="action-btn">Edit</a>
+                                {% endif %}
+                                {% if current_user.role == 'admin' %}
+                                <a href="/students/delete/{{ student.id }}" class="action-btn danger" onclick="return confirm('Remove this student?')">Remove</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="empty">
+                            No students found.
+                            {% if current_user.role in ['admin', 'trainer'] %}
+                            <a href="/students/create">Add the first student</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

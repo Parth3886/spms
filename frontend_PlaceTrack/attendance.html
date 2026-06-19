@@ -1,0 +1,78 @@
+{% extends "_layout.html" %}
+{% block title %}Attendance{% endblock %}
+{% block nav_attendance %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Attendance</div>
+        <div class="page-sub">{{ attendance_date }} | {{ session | title }}</div>
+    </div>
+</div>
+
+<section class="panel">
+    <form action="/attendance" method="get" class="form-grid three">
+        <div class="form-field">
+            <label>Date</label>
+            <input type="date" name="attendance_date" value="{{ attendance_date }}">
+        </div>
+        <div class="form-field">
+            <label>Session</label>
+            <select name="session">
+                <option value="morning" {% if session == 'morning' %}selected{% endif %}>Morning</option>
+                <option value="afternoon" {% if session == 'afternoon' %}selected{% endif %}>Afternoon</option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn btn-outline">Load</button>
+        </div>
+    </form>
+</section>
+
+<form action="/attendance/mark" method="post">
+    <input type="hidden" name="attendance_date" value="{{ attendance_date }}">
+    <input type="hidden" name="session" value="{{ session }}">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Branch</th>
+                    <th>Batch</th>
+                    <th>Current Attendance</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                    {% set current_status = status_map.get(student.id, 'present') %}
+                    <tr>
+                        <td><strong>{{ student.name }}</strong><br><span class="muted">{{ student.email }}</span></td>
+                        <td>{{ student.branch or '-' }}</td>
+                        <td>{{ student.batch_year }}</td>
+                        <td>{{ student.attendance }}%</td>
+                        <td>
+                            {% if current_user.role in ['admin', 'trainer'] %}
+                            <select name="status_{{ student.id }}">
+                                <option value="present" {% if current_status == 'present' %}selected{% endif %}>Present</option>
+                                <option value="absent" {% if current_status == 'absent' %}selected{% endif %}>Absent</option>
+                                <option value="late" {% if current_status == 'late' %}selected{% endif %}>Late</option>
+                            </select>
+                            {% else %}
+                            <span class="badge {{ current_status }}">{{ current_status | title }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="empty">No student profiles found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    {% if current_user.role in ['admin', 'trainer'] and students %}
+    <button type="submit" class="btn btn-primary">Save Attendance</button>
+    {% endif %}
+</form>
+{% endblock %}

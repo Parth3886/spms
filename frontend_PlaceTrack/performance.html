@@ -1,0 +1,96 @@
+{% extends "_layout.html" %}
+{% block title %}Performance{% endblock %}
+{% block nav_performance %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Performance</div>
+        <div class="page-sub">Placement, attendance, and academic summary</div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Students</div>
+        <div class="stat-value">{{ stats.total_students }}</div>
+        <div class="stat-sub">Total profiles</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-label">Placed</div>
+        <div class="stat-value">{{ stats.placed }}</div>
+        <div class="stat-sub">{{ stats.placement_rate }}% placement rate</div>
+    </div>
+    <div class="stat-card yellow">
+        <div class="stat-label">Average CGPA</div>
+        <div class="stat-value">{{ stats.avg_cgpa }}</div>
+        <div class="stat-sub">Across available records</div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-label">Attendance</div>
+        <div class="stat-value">{{ stats.avg_attendance }}%</div>
+        <div class="stat-sub">Average attendance</div>
+    </div>
+</div>
+
+<section class="panel">
+    <div class="panel-title">Branch Placement</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Branch</th>
+                    <th>Total</th>
+                    <th>Placed</th>
+                    <th>Rate</th>
+                    <th>Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if branch_stats %}
+                    {% for branch, data in branch_stats.items() %}
+                    <tr>
+                        <td>{{ branch or 'Not set' }}</td>
+                        <td>{{ data.total }}</td>
+                        <td>{{ data.placed }}</td>
+                        <td>{{ data.rate }}%</td>
+                        <td><div class="progress"><div class="progress-fill" style="width: {{ data.rate }}%"></div></div></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="5" class="empty">No branch data found.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Branch</th>
+                <th>CGPA</th>
+                <th>Attendance</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if students %}
+                {% for student in students %}
+                {% set status = student.placement_status or 'eligible' %}
+                <tr>
+                    <td><strong>{{ student.name }}</strong><br><span class="muted">{{ student.email }}</span></td>
+                    <td>{{ student.branch or '-' }}</td>
+                    <td>{{ student.cgpa if student.cgpa is not none else '-' }}</td>
+                    <td>{{ student.attendance }}%</td>
+                    <td><span class="badge {{ status }}">{{ status.replace('_', ' ') | title }}</span></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="5" class="empty">No student profiles found.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

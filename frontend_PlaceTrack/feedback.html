@@ -1,0 +1,43 @@
+{% extends "_layout.html" %}
+{% block title %}Feedback{% endblock %}
+{% block nav_feedback %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Feedback</div>
+        <div class="page-sub">{{ interviews | length }} completed interview record{% if interviews | length != 1 %}s{% endif %}</div>
+    </div>
+    <a href="/interviews" class="btn btn-outline">Interviews</a>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Drive</th>
+                <th>Round</th>
+                <th>Result</th>
+                <th>Rating</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if interviews %}
+                {% for interview in interviews %}
+                <tr>
+                    <td><strong>{{ interview.student.name }}</strong><br><span class="muted">{{ interview.student.email }}</span></td>
+                    <td>{{ interview.drive.company_name }}<br><span class="muted">{{ interview.drive.role }}</span></td>
+                    <td>{{ interview.round_number }} - {{ interview.round_type or '-' }}</td>
+                    <td><span class="badge {{ interview.result }}">{{ interview.result | title }}</span></td>
+                    <td>{{ interview.rating or '-' }}</td>
+                    <td>{{ interview.feedback or '-' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="6" class="empty">No feedback records found.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "_layout.html" %}
+{% block title %}Drives{% endblock %}
+{% block nav_drives %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Placement Drives</div>
+        <div class="page-sub">{{ drives | length }} drive{% if drives | length != 1 %}s{% endif %}</div>
+    </div>
+    {% if current_user.role in ['admin', 'trainer'] %}
+    <div class="toolbar">
+        <a href="/create" class="btn btn-primary">Add Drive</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>CTC</th>
+                <th>Eligibility</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if drives %}
+                {% for drive in drives %}
+                <tr>
+                    <td><strong>{{ drive.company_name }}</strong><br><span class="muted">{{ drive.sector or '' }}</span></td>
+                    <td>{{ drive.role }}</td>
+                    <td>{{ drive.drive_type or '-' }}</td>
+                    <td>{{ drive.drive_date }}</td>
+                    <td>{{ drive.ctc or '-' }}</td>
+                    <td>CGPA {{ drive.min_cgpa or 0 }}+<br><span class="muted">{{ drive.eligible_branches or 'ALL' }}</span></td>
+                    <td><span class="badge {{ drive.status }}">{{ drive.status | title }}</span></td>
+                    <td>
+                        <div class="actions">
+                            {% if current_user.role in ['admin', 'trainer'] %}
+                            <a href="/update/{{ drive.id }}" class="small-link">Edit</a>
+                            {% endif %}
+                            {% if current_user.role == 'admin' %}
+                            <a href="/delete/{{ drive.id }}" class="small-link" onclick="return confirm('Delete this drive?')">Delete</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="8" class="empty">No placement drives found.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

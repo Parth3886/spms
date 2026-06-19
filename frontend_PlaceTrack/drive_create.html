@@ -1,0 +1,84 @@
+{% extends "_layout.html" %}
+{% block title %}Add Drive{% endblock %}
+{% block nav_drives %}active{% endblock %}
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="page-title">Add Placement Drive</div>
+        <div class="page-sub">Company, eligibility, and schedule details</div>
+    </div>
+    <a href="/drives" class="btn btn-outline">Back</a>
+</div>
+
+<section class="panel">
+    <form action="/create" method="post" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-field">
+                <label>Company Name</label>
+                <input type="text" name="company_name" required>
+            </div>
+            <div class="form-field">
+                <label>Sector</label>
+                <input type="text" name="sector">
+            </div>
+            <div class="form-field">
+                <label>Role</label>
+                <input type="text" name="role" required>
+            </div>
+            <div class="form-field">
+                <label>CTC</label>
+                <input type="text" name="ctc">
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Description</label>
+            <textarea name="description"></textarea>
+        </div>
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Drive Date</label>
+                <input type="date" name="drive_date" required>
+            </div>
+            <div class="form-field">
+                <label>Registration Deadline</label>
+                <input type="date" name="reg_deadline">
+            </div>
+            <div class="form-field">
+                <label>Vacancies</label>
+                <input type="number" name="vacancies" min="1">
+            </div>
+        </div>
+        <div class="form-grid three">
+            <div class="form-field">
+                <label>Drive Type</label>
+                <select name="drive_type">
+                    <option value="on-campus">On Campus</option>
+                    <option value="off-campus">Off Campus</option>
+                    <option value="virtual">Virtual</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label>Minimum CGPA</label>
+                <input type="number" name="min_cgpa" value="0" step="0.1" min="0" max="10">
+            </div>
+            <div class="form-field">
+                <label>Maximum Backlogs</label>
+                <input type="number" name="max_backlogs" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Eligible Branches</label>
+            <div class="checkbox-row">
+                {% for branch in ['CS', 'IT', 'EC', 'MECH', 'CIVIL', 'ALL'] %}
+                <label class="checkbox-item"><input type="checkbox" name="branches" value="{{ branch }}" {% if branch in ['CS', 'IT'] %}checked{% endif %}> {{ branch }}</label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-field">
+            <label>Attachment</label>
+            <input type="file" name="attachment" accept=".pdf,.doc,.docx,.ppt,.pptx">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Drive</button>
+    </form>
+</section>
+{% endblock %}

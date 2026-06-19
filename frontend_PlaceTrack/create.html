@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Placement Drive | PlaceTrack</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-light: #dbeafe;
+            --success: #10b981;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-w: 240px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--primary);
+            min-height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-brand { padding: 28px 24px 22px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+        .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+        .brand-dot { color: var(--accent); }
+        .brand-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+        .nav-section { padding: 20px 16px 8px; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: rgba(255,255,255,0.55); text-decoration: none; font-size: 13.5px; font-weight: 500; border-radius: 6px; margin-bottom: 2px; transition: 0.18s; }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-item.active { background: var(--accent); color: #fff; }
+        .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .user-row { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+        .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+        .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+        .logout-link { font-size: 11px; color: rgba(255,255,255,0.4); text-decoration: none; display: block; margin-top: 12px; }
+
+        .main { margin-left: var(--sidebar-w); padding: 32px 36px; min-height: 100vh; max-width: calc(var(--sidebar-w) + 800px); }
+
+        .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+        .breadcrumb a { color: var(--accent); text-decoration: none; }
+        .breadcrumb span { margin: 0 6px; }
+
+        .page-header { margin-bottom: 28px; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--muted); }
+
+        /* Tab switcher for drive type */
+        .type-tabs {
+            display: flex;
+            gap: 0;
+            border: 1.5px solid var(--border);
+            width: fit-content;
+            margin-bottom: 28px;
+        }
+        .type-tab {
+            padding: 10px 22px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--muted);
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            transition: 0.2s;
+            border-right: 1.5px solid var(--border);
+        }
+        .type-tab:last-child { border-right: none; }
+        .type-tab.active { background: var(--primary); color: #fff; }
+
+        .form-card { background: var(--card); padding: 32px 36px; }
+        .form-section { margin-bottom: 30px; }
+        .form-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="url"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            color: var(--text);
+            background: #fafafa;
+            transition: 0.2s;
+            font-family: 'Inter', sans-serif;
+            -webkit-appearance: none;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+        textarea { resize: vertical; min-height: 90px; }
+
+        .file-zone {
+            border: 2px dashed var(--border);
+            padding: 28px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        .file-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+        .file-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+        .file-icon { font-size: 28px; margin-bottom: 8px; }
+        .file-text { font-size: 13px; color: var(--muted); }
+        .file-text strong { color: var(--accent); }
+
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+        .checkbox-item { display: flex; align-items: center; gap: 7px; }
+        .checkbox-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+        .checkbox-item label { font-size: 13px; text-transform: none; letter-spacing: 0; color: var(--text); margin-bottom: 0; font-weight: 500; cursor: pointer; }
+
+        .form-actions { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+        .btn-submit {
+            padding: 14px 36px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            transition: 0.25s;
+        }
+        .btn-submit:hover { background: var(--accent); }
+        .back-link { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .back-link:hover { color: var(--text); }
+
+        @media(max-width:700px){
+            .main { margin-left: 0; padding: 20px; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .form-card { padding: 22px 18px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-name">Place<span class="brand-dot">Track</span></div>
+        <div class="brand-sub">Management System</div>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <a href="/" class="nav-item"><span class="nav-icon">⊞</span> Dashboard</a>
+        <a href="/students" class="nav-item"><span class="nav-icon">🎓</span> Students</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Academics</div>
+        <a href="/assessments" class="nav-item"><span class="nav-icon">📝</span> Assessments</a>
+        <a href="/attendance" class="nav-item"><span class="nav-icon">📅</span> Attendance</a>
+    </div>
+    <div class="nav-section">
+        <div class="nav-label">Placement</div>
+        <a href="/drives" class="nav-item active"><span class="nav-icon">🏢</span> Drives</a>
+        <a href="/interviews" class="nav-item"><span class="nav-icon">💬</span> Interviews</a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-row">
+            <div class="avatar">{{ current_user.name[0] | upper }}</div>
+            <div>
+                <div class="user-name">{{ current_user.name }}</div>
+                <div class="user-role">{{ current_user.role | title }}</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-link">← Sign out</a>
+    </div>
+</aside>
+
+<main class="main">
+    <div class="breadcrumb">
+        <a href="/">Dashboard</a><span>›</span>
+        <a href="/drives">Drives</a><span>›</span>
+        Add New Drive
+    </div>
+
+    <div class="page-header">
+        <div class="page-title">Schedule a Placement Drive</div>
+        <div class="page-sub">Fill in the company and drive details below</div>
+    </div>
+
+    <div class="type-tabs">
+        <button class="type-tab active" onclick="setType(this,'on-campus')">On-Campus</button>
+        <button class="type-tab" onclick="setType(this,'off-campus')">Off-Campus</button>
+        <button class="type-tab" onclick="setType(this,'virtual')">Virtual</button>
+    </div>
+
+    <div class="form-card">
+        <form action="/create" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="drive_type" id="drive-type-input" value="on-campus">
+
+            <!-- Company Info -->
+            <div class="form-section">
+                <div class="form-section-title">Company Information</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" name="company_name" placeholder="e.g. Infosys Ltd." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Industry Sector</label>
+                        <select name="sector">
+                            <option value="">Select sector</option>
+                            <option>IT & Software</option>
+                            <option>Banking & Finance</option>
+                            <option>Core Engineering</option>
+                            <option>Consulting</option>
+                            <option>E-Commerce</option>
+                            <option>Startup</option>
+                            <option>Government / PSU</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Job Role / Profile</label>
+                        <input type="text" name="role" placeholder="e.g. Software Engineer" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CTC / Package (LPA)</label>
+                        <input type="text" name="ctc" placeholder="e.g. 6.5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job Description</label>
+                    <textarea name="description" placeholder="Describe the role, responsibilities, and tech stack..."></textarea>
+                </div>
+            </div>
+
+            <!-- Drive Details -->
+            <div class="form-section">
+                <div class="form-section-title">Drive Details</div>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Drive Date</label>
+                        <input type="date" name="drive_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Registration Deadline</label>
+                        <input type="date" name="reg_deadline">
+                    </div>
+                    <div class="form-group">
+                        <label>Vacancies</label>
+                        <input type="number" name="vacancies" placeholder="e.g. 20" min="1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Min CGPA Required</label>
+                        <input type="number" name="min_cgpa" placeholder="e.g. 6.5" step="0.1" min="0" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Backlogs Allowed</label>
+                        <input type="number" name="max_backlogs" placeholder="e.g. 0" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eligible Branches -->
+            <div class="form-section">
+                <div class="form-section-title">Eligible Branches</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="cs" value="CS" checked>
+                        <label for="cs">Computer Science</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="it" value="IT" checked>
+                        <label for="it">Information Technology</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="ec" value="EC">
+                        <label for="ec">Electronics</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="mech" value="MECH">
+                        <label for="mech">Mechanical</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="civil" value="CIVIL">
+                        <label for="civil">Civil</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" name="branches" id="all" value="ALL">
+                        <label for="all">All Branches</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="form-section">
+                <div class="form-section-title">Attachments (Optional)</div>
+                <div class="file-zone" id="file-zone">
+                    <div class="file-icon">📎</div>
+                    <div class="file-text"><strong>Click to upload</strong> JD, PPT or brochure</div>
+                    <div class="file-text" style="margin-top:4px;font-size:12px">PDF, DOCX, PPTX — max 10MB</div>
+                    <input type="file" name="attachment" accept=".pdf,.doc,.docx,.ppt,.pptx" onchange="document.querySelector('.file-text strong').innerText = this.files[0]?.name || 'Click to upload'">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Schedule Drive</button>
+                <a href="/" class="back-link">← Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    function setType(el, type) {
+        document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('drive-type-input').value = type;
+    }
+</script>
+</body>
+</html>
